@@ -1,56 +1,49 @@
-# Deploy Nora Oberlaender personal website to GitHub Pages
-name: Deploy Website to Pages
+# Deploys static HTML website to GitHub Pages
+# Uses: actions/checkout@v4, actions/configure-pages@v5, actions/upload-pages-artifact@v3, actions/deploy-pages@v4
+name: Deploy to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Build and deploy job
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare deployment folder
+      - name: Create deployment directory
         run: |
-          mkdir -p _site
-          cp index.html _site/
-          cp impressum.html _site/
-          cp datenschutz.html _site/
-          cp favicon.svg _site/
-          cp robots.txt _site/
-          cp sitemap.xml _site/
-          # Copy any additional assets if they exist
-          if [ -d "assets" ]; then cp -r assets _site/; fi
+          mkdir -p public
+          cp index.html public/
+          cp impressum.html public/
+          cp datenschutz.html public/
+          cp favicon.svg public/
+          cp robots.txt public/
+          cp sitemap.xml public/
+          touch public/.nojekyll
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: 'public'
 
       - name: Deploy to GitHub Pages
         id: deployment
